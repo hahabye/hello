@@ -2,7 +2,7 @@
 FROM php:alpine
 
 # 将本地文件复制到容器中
-# COPY index.php /var/www/html/
+COPY index.php /var/www/html/
 
 # 暴露容器的 80 端口
 EXPOSE 80
