@@ -1,0 +1,71 @@
+name: Docker Build and Publish
+
+on:
+  # 手动触发工作流
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本标签 (例如: v1.0.0)'
+        required: false
+        default: ''
+      branch:
+        description: '要构建的分支'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - develop
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.event.inputs.branch == 'main' }}
+            type=raw,value=dev,enable=${{ github.event.inputs.branch == 'develop' }}
+            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event.inputs.version != '' }}
+            type=raw,value=${{ github.event.inputs.branch }}
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: 显示构建信息
+        run: |
+          echo "\n\n=== 构建完成 ==="
+          echo "分支: ${{ github.event.inputs.branch }}"
+          echo "版本: ${{ github.event.inputs.version || '无特定版本' }}"
+          echo "标签: ${{ steps.meta.outputs.tags }}"
+          echo "\n镜像已成功推送到 GitHub Container Registry"
+          echo "\n使用方法: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:<标签>"
