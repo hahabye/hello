@@ -61,11 +61,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: 显示构建信息
+      - name: Build message
         run: |
-          echo "\n\n=== 构建完成 ==="
+          echo "=== 构建完成 ==="
           echo "分支: ${{ github.event.inputs.branch }}"
-          echo "版本: ${{ github.event.inputs.version || '无特定版本' }}"
-          echo "标签: ${{ steps.meta.outputs.tags }}"
-          echo "\n镜像已成功推送到 GitHub Container Registry"
-          echo "\n使用方法: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:<标签>"
+          echo "版本: ${{ github.event.inputs.version || 'default' }}"
+          echo "标签:
+          ${{ steps.meta.outputs.tags }}"
+          echo "镜像已成功推送到 GitHub Container Registry"
+          echo "使用方法: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
