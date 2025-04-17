@@ -37,4 +37,4 @@ jobs:
           ls
           pwd
           date -R
-          curl ip.sb
+          curl -s ip.sb
