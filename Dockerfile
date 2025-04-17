@@ -1,11 +1,44 @@
-# 使用官方 PHP 镜像作为基础镜像
-FROM php:alpine
+ARG PHP_VERSION=8.3.2
+FROM php:${PHP_VERSION}-fpm-alpine
 
-# 将本地文件复制到容器中
+# timezone
+ENV TZ=Asia/Shanghai
+# tzdata
+RUN set -eux && apk update && apk add tzdata && \
+    # shanghai
+    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo "${TZ}" > /etc/timezone && \
+    # clean
+    apk cache clean && rm -rf /var/cache/apk/*
+
+# docker-php-ext-install extension
+RUN apk update && apk add --no-cache \
+    && apk add freetype-dev\
+		libwebp-dev\
+		libxpm-dev\
+		libpng-dev\
+		libjpeg-turbo-dev\
+		libzip-dev\
+	&& docker-php-ext-configure gd \
+	    --enable-gd \
+	    --with-webp \
+	    --with-jpeg \
+	    --with-xpm \
+	    --with-freetype \
+	&& docker-php-ext-install mysqli pdo_mysql gd zip bcmath
+	
+RUN apk add gcc g++ autoconf make linux-headers\
+	&& pecl install -o -f redis\
+	&& docker-php-ext-enable redis \
+	&& pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+	&& rm -rf /tmp/pear
+
+# copy
 COPY index.php /var/www/html/
 
-# 暴露容器的 80 端口
+# expose
 EXPOSE 80
 
-# 设置容器启动时执行的命令
+# command
 CMD ["php", "-S", "0.0.0.0:80", "-t", "/var/www/html/"]
