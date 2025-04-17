@@ -5,11 +5,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本标签 (例如: v1.0.0)'
+        description: 'Version (eg: v1.0.0)'
         required: false
-        default: 'v1.0.0'
+        default: ''
       branch:
-        description: '要构建的分支'
+        description: 'Branch to build'
         required: true
         default: 'main'
         type: choice
@@ -63,10 +63,10 @@ jobs:
 
       - name: Building messages
         run: |
-          echo "=== 构建完成 ==="
-          echo "分支: ${{ github.event.inputs.branch }}"
-          echo "版本: ${{ github.event.inputs.version || 'default' }}"
-          echo "标签:
+          echo "=== Build Finished ==="
+          echo "Branch: ${{ github.event.inputs.branch }}"
+          echo "Version: ${{ github.event.inputs.version || 'default' }}"
+          echo "Tags:
           ${{ steps.meta.outputs.tags }}"
-          echo "镜像已成功推送到 GitHub Container Registry"
-          echo "使用方法: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "Image Pushed to GitHub Container Registry"
+          echo "Usage: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
