@@ -32,9 +32,9 @@ jobs:
           echo "docs 目录文件列表:"
           ls -la docs/
 
-
       - name: Install dependencies
         run: |
+          # 模拟按照依赖环境
           ls
 
       - name: Build for Linux
@@ -43,18 +43,20 @@ jobs:
           pwd
           ls
           # 创建构建目录
-          mkdir -p build
+          mkdir -p build && mkdir -p dist
+          ls
+          # 模拟打包文件
           echo "abc" > build/index.html
-          cp -r build build_temp
-          tar -zcvf build/hello.tar.gz build_temp
-          rm -rf build_temp
-          ls -la build/
+          cp -rf build/* dist/
+          cd build && tar -zcvf ../dist/hello.tar.gz *
+          cd ..
+          ls -al dist/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
-          path: build/
+          path: dist/
           retention-days: 1
 
   release:
@@ -87,14 +89,22 @@ jobs:
 
           # 创建版本信息文件
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "$(date +%Y-%m-%d %H:%M:%S)" > version-dev.txt
+            echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > version-dev.txt
           else
-            echo "$(date +%Y-%m-%d %H:%M:%S)" > version.txt
+            echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > version.txt
           fi
 
           echo "文件列表:"
           # 显示文件列表以便调试
           ls -la
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 替换为你构建输出的目录
+          publish_dir: . 
+          publish_branch: gh-pages
 
       # 如果是 develop 分支，先删除已存在的 dev-latest 标签
       - name: Delete existing dev-latest tag
