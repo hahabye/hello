@@ -46,7 +46,7 @@ jobs:
           mkdir -p build && mkdir -p dist
           ls
           # 模拟打包文件
-          echo "abc" > build/index.html
+          echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > build/index.html
           cp -rf build/* dist/
           cd build && tar -zcvf ../dist/hello.tar.gz *
           cd ..
