@@ -82,7 +82,7 @@ jobs:
 
           # 移动所有构建文件到发布目录
           # 复制 ubuntu 的构建文件（会覆盖重复的文件）
-          cp -rf artifacts/binaries-ubuntu-latest/* release/ || true
+          cp -f artifacts/binaries-ubuntu-latest/* release/ || true
 
           # 直接使用原始二进制文件，不创建压缩包
           cd release
