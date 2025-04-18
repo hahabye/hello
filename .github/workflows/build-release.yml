@@ -98,14 +98,6 @@ jobs:
           # 显示文件列表以便调试
           ls -la
 
-      # 发布到 gh-pages 分支
-      - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 替换为你构建输出的目录
-          publish_dir: .
-          publish_branch: gh-pages
 
       # 如果是 develop 分支，先删除已存在的 dev-latest 标签
       - name: Delete existing dev-latest tag
@@ -151,3 +143,12 @@ jobs:
           draft: false
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
+
+      # 发布到 gh-pages 分支
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 替换为你构建输出的目录
+          publish_dir: .
+          publish_branch: gh-pages
