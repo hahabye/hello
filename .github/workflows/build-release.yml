@@ -40,17 +40,19 @@ jobs:
       - name: Build for Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
-          cd docs
+          pwd
+          ls
           # 创建构建目录
           mkdir -p build
           echo "abc" > build/index.html
+          tar -zcvf hello.tar.gz build
           ls -la build/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
-          path: docs/build/
+          path: build/
           retention-days: 1
 
   release:
