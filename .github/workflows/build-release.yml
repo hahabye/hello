@@ -44,12 +44,13 @@ jobs:
           ls
           # 创建构建目录
           mkdir -p build && mkdir -p dist
-          # 模拟打包文件
-          echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > dist/index.html
-          cp -rf dist build/
-          cd dist && tar -zcvf ../build/hello.tar.gz *
-          cd ..
-          ls -al build/
+          # 模拟构建
+          echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > build/index.html
+          # 模拟打包
+          cd build && tar -zcvf ../dist/hello.tar.gz *  && cd ..
+          # 最终文件
+          cp -rf build dist/
+          ls -al dist/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -102,7 +103,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # 替换为你构建输出的目录
-          publish_dir: ./release
+          publish_dir: .
           publish_branch: gh-pages
 
       # 如果是 develop 分支，先删除已存在的 dev-latest 标签
