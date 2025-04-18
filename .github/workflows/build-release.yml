@@ -103,7 +103,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # 替换为你构建输出的目录
-          publish_dir: . 
+          publish_dir: ./release
           publish_branch: gh-pages
 
       # 如果是 develop 分支，先删除已存在的 dev-latest 标签
