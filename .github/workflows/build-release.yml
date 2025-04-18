@@ -44,7 +44,6 @@ jobs:
           ls
           # 创建构建目录
           mkdir -p build && mkdir -p dist
-          ls
           # 模拟打包文件
           echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > dist/index.html
           cp -rf dist build/
@@ -82,7 +81,7 @@ jobs:
 
           # 移动所有构建文件到发布目录
           # 再复制 ubuntu 的构建文件（会覆盖重复的文件）
-          cp -f artifacts/binaries-ubuntu-latest/* release/ || true
+          cp -rf artifacts/binaries-ubuntu-latest/* release/ || true
 
           # 直接使用原始二进制文件，不创建压缩包
           cd release
