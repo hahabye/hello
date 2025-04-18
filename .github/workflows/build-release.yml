@@ -45,7 +45,9 @@ jobs:
           # 创建构建目录
           mkdir -p build
           echo "abc" > build/index.html
-          tar -zcvf build/hello.tar.gz build
+          cp -r build build_temp
+          tar -zcvf build/hello.tar.gz build_temp
+          rm -rf build_temp
           ls -la build/
 
       - name: Upload build artifacts
