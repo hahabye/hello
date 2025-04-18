@@ -46,17 +46,17 @@ jobs:
           mkdir -p build && mkdir -p dist
           ls
           # 模拟打包文件
-          echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > build/index.html
-          cp -rf build/* dist/
-          cd build && tar -zcvf ../dist/hello.tar.gz *
+          echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > dist/index.html
+          cp -rf dist build/
+          cd dist && tar -zcvf ../build/hello.tar.gz *
           cd ..
-          ls -al dist/
+          ls -al build/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
-          path: dist/
+          path: build/
           retention-days: 1
 
   release:
