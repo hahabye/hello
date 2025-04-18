@@ -48,7 +48,7 @@ jobs:
           echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > build/index.html
           # 模拟打包
           cd build && tar -zcvf ../dist/hello.tar.gz *  && cd ..
-          # 最终文件
+          # 最终文件夹
           cp -rf build dist/
           ls -al dist/
 
@@ -56,7 +56,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
-          path: build/
+          path: dist/
           retention-days: 1
 
   release:
