@@ -43,14 +43,14 @@ jobs:
           cd docs
           # 创建构建目录
           mkdir -p build
-          echo "abc" > index.html
+          echo "abc" > build/index.html
           ls -la build/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
-          path: docs/build/
+          path: build/
           retention-days: 1
 
   release:
@@ -83,9 +83,9 @@ jobs:
 
           # 创建版本信息文件
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "dev-$(date +%Y-%m-%d_%H:%M:%S)" > version.txt
+            echo "$(date +%Y-%m-%d %H:%M:%S)" > version-dev.txt
           else
-            echo "$(date +%Y-%m-%d_%H:%M:%S)" > version.txt
+            echo "$(date +%Y-%m-%d %H:%M:%S)" > version.txt
           fi
 
           echo "文件列表:"
