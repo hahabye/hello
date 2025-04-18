@@ -77,16 +77,16 @@ jobs:
 
       - name: Prepare release files
         run: |
-          # 创建发布目录
+          # 创建发布目录 release
           mkdir -p release
 
           # 移动所有构建文件到发布目录
-          # 再复制 ubuntu 的构建文件（会覆盖重复的文件）
+          # 复制 ubuntu 的构建文件（会覆盖重复的文件）
           cp -rf artifacts/binaries-ubuntu-latest/* release/ || true
 
           # 直接使用原始二进制文件，不创建压缩包
           cd release
-
+          
           # 创建版本信息文件
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "$(date +'%Y-%m-%dT%H:%M:%S%z')" > version-dev.txt
@@ -98,6 +98,7 @@ jobs:
           # 显示文件列表以便调试
           ls -la
 
+      # 发布到 gh-pages 分支
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3
         with:
