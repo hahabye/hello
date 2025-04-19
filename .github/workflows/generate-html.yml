@@ -15,11 +15,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-      # --------------------- 环境准备 ---------------------
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
 
       - name: Initialize Vite project
         run: |
@@ -81,4 +76,20 @@ jobs:
           echo -e "\n配置文件路径："
           realpath vite.css.config.js
           realpath vite.js.config.js
+
+      - name: Build JS and CSS
+        run: |
+          npx vite build --config vite.js.config.js
+          npx vite build --config vite.css.config.js
      
+      # --------------------- 文件合并 ---------------------
+      - name: Create combined JS
+        run: |
+          mkdir -p dist
+          cat static/js/config.js dist/jsq.js > dist/all.js
+          ls -al
+          cat dist/all.js
+
+
+
+          
