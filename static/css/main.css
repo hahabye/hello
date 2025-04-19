@@ -1,0 +1,6 @@
+@import './form.css';
+@import './base.css';
+
+#app {
+  margin: 0 auto;
+}
