@@ -15,8 +15,64 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+      # --------------------- 环境准备 ---------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install -g create-vite
+          npm init -y
+          npm install vite --save-dev
+      #    npm install
 
+      - name: Create Vite CSS config
+        run: |
+          cat > vite.css.config.js <<'EOF'
+          import { defineConfig } from 'vite';          
+          export default defineConfig({
+            build: {
+              emptyOutDir: false, // 保留构建产物
+              rollupOptions: {
+                input: ['./static/css/main.css'],
+                output: {
+                  dir: 'dist',
+                  assetFileNames: 'main.css'
+                },
+              },
+            },
+          });
+          EOF
+      - name: Create Vite CSS config
+        run: |
+          cat > vite.css.config.js <<'EOF'
+          import { defineConfig } from 'vite';
+          export default defineConfig({
+            build: {
+              emptyOutDir: false,  // 保留构建产物
+              rollupOptions: {
+                input: [
+                  './static/js/jsq.js',    // JS 入口文件
+                ],
+                output: {
+                  //inlineDynamicImports: false,
+                  format: 'iife',          // 仅适用于 JS 文件
+                  dir: 'dist',             // 输出目录
+                  // 控制资源文件名（CSS 文件）
+                  entryFileNames: 'jsq.js'
+                }
+              }
+            }
+          });
+          EOF
+      - name: Verify config file
+        run: |
+          echo "生成配置文件内容："
+          cat vite.css.config.js
+          cat vite.js.config.js
+          echo -e "\n配置文件路径："
+          realpath vite.css.config.js
+          realpath vite.js.config.js
      
