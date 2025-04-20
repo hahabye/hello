@@ -84,6 +84,7 @@ jobs:
           rm -rf dist
           rm -rf build
           mkdir -p dist
+          mkdir -p build
           # 构建文件
           npx vite build --config vite.js.config.js
           npx vite build --config vite.css.config.js
