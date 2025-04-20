@@ -19,14 +19,14 @@ jobs:
       - name: Initialize Vite project
         run: |
           # 强制非交互模式初始化项目
-          npm create vite@latest . --yes --template vanilla
+          npm create vite@latest . -- --template vanilla
           npm install vite --save-dev
           # 验证项目结构
           ls -la
           cat package.json
 
       - name: Install dependencies
-        run: npm ci --prefer-offline
+        run: npm install
 
       - name: Create Vite CSS config
         run: |
@@ -45,6 +45,7 @@ jobs:
             },
           });
           EOF
+
       - name: Create Vite JS config
         run: |
           cat > vite.js.config.js <<'EOF'
@@ -54,19 +55,19 @@ jobs:
               emptyOutDir: false,  // 保留构建产物
               rollupOptions: {
                 input: [
-                  './static/js/jsq.js',    // JS 入口文件
+                  './static/js/jsq.js',
                 ],
                 output: {
                   //inlineDynamicImports: false,
-                  format: 'iife',          // 仅适用于 JS 文件
                   dir: 'dist',             // 输出目录
-                  // 控制资源文件名（CSS 文件）
+                  format: 'iife',          // 仅适用于 JS 文件
                   entryFileNames: 'jsq.js'
                 }
               }
             }
           });
           EOF
+
       - name: Verify config file
         run: |
           ls -al
@@ -79,46 +80,91 @@ jobs:
 
       - name: Build JS and CSS
         run: |
+          # 初始清理
+          rm -rf dist
+          rm -rf build
+          mkdir -p dist
+          # 构建文件
           npx vite build --config vite.js.config.js
           npx vite build --config vite.css.config.js
+          ls -al build
      
-      # --------------------- 文件合并 ---------------------
-      - name: Create combined JS
+      - name: Build JS and CSS
         run: |
-          mkdir -p dist
-          cat static/js/config.js dist/jsq.js > dist/all.js
-          ls -al
-          cat dist/all.js
-      
-      # --------------------- HTML 注入 ---------------------
-      - name: Generate final HTML
-        run: |
-          # 读取资源内容
-          CSS_CONTENT=$(cat dist/main.css)
-          JS_CONTENT=$(cat dist/all.js)
+          # 插入配置文件 API
+          sed -i 's/"use strict";/"use strict";const ah="https:\/\/www.196000.xyz",URL_JSQ=ah+"\/api\/vps\/jsq",URL_RATES=ah+"\/api\/vps\/rates";/g' build/jsq.js
+          # 生成新 HTML
+          OUT="dist/index.html"
+          # 文件路径
+          CSS_FILE="build/main.css"
+          JS1_FILE="static/js/flatpickr.min.js"
+          JS2_FILE="build/jsq.js"
 
-          # 生成新 HTML（带智能转义）
-          awk -v css="$CSS_CONTENT" -v js="$JS_CONTENT" '
-            BEGIN {
-              gsub(/\//, "\\/", css)  # 转义斜杠
-              gsub(/\//, "\\/", js)
-            }
-            # 删除旧标签
-            !/rel="stylesheet"/ && !/config\.js/ && !/jsq\.js/ {
+          # ⚠️ 避免内容过大，使用 CSS_CONTENT=$(cat dist/main.css) 变量过长，导致 awk 会截断
+          awk '
+          BEGIN {
+
+          }
+          # 删除旧标签
+          !/rel="stylesheet"/ && !/flatpickr\.js/ && !/config\.js/ && !/jsq\.js/ {
               # 插入新标签
-              if (/<\/head>/) print "<style>" css "</style>"
-              if (/<\/body>/) print "<script>" js "</script>"
+              if (/<\/head>/){
+                  print "<style>"
+                  while ((getline line < "'"$CSS_FILE"'") > 0) {
+                      print line
+                  }
+                  close("'"$CSS_FILE"'")
+                  print "</style>"
+                  next
+              }
+              if (/<\/body>/){
+                  print "<script>"
+                  while ((getline line < "'"$JS1_FILE"'") > 0) {
+                      print line
+                  }
+                  # 隔行
+                  print ""
+                  close("'"$JS1_FILE"'")
+                  while ((getline line < "'"$JS2_FILE"'") > 0) {
+                      print line
+                  }
+                  close("'"$JS2_FILE"'")
+                  print "</script>"
+                  next
+              }
               print
-            }
-          ' index.html > dist/index.html
-          cat dist/index.html
-          
-      # --------------------- 最终打包 ---------------------
+          }' index.html > "$OUT"
+
+          # 压缩并转义 SVG
+          # 去掉换行
+          # 把引号和特殊字符进行 URL 编码（例如 " ➜ %22, # ➜ %23 等）
+          FAVICON_DATA2=$(sed ':a;N;$!ba;s/\n//g' favicon.svg | \
+            sed 's/"/'\''/g' | \
+            sed 's/#/%23/g; s/</%3C/g; s/>/%3E/g; s/ /%20/g; s/=/=%3D/g; s/&/%26/g')
+          FAVICON_DATA=$(cat favicon.svg | \
+            sed 's/"/'\''/g' | \
+            sed 's/#/%23/g;')
+          # 源码替换
+          sed -i '/rel="icon"/{
+              s|<link.*>|'"$(echo "<link rel=\"icon\" type=\"image/svg+xml\" href=\"data:image/svg+xml,${FAVICON_DATA}\" />")"'|
+          }' "$OUT"
+          sed -i 's/<link rel="alternate icon" href="favicon.ico" \/>//g' "$OUT"
+          ls -al
+
       - name: Create release package
         run: |
-          tar -czvf htm.tar.gz -C dist index.html
-          ls -lh htm.tar.gz
+          # 打包 tar.gz
+          cd dist && tar -czvf ../vps_jsq.tar.gz * && cd .. 
+          #mv vps_jsq.tar.gz dist/
+          # 清理
+          rm -rf build
+          ls -al dist
+          ls -al vps_jsq.tar.gz
 
-
-
+      - name: Upload Release to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: vps_jsq.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
