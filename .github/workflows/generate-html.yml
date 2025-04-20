@@ -38,7 +38,7 @@ jobs:
               rollupOptions: {
                 input: ['./static/css/main.css'],
                 output: {
-                  dir: 'dist',
+                  dir: 'build',
                   assetFileNames: 'main.css'
                 },
               },
@@ -59,7 +59,7 @@ jobs:
                 ],
                 output: {
                   //inlineDynamicImports: false,
-                  dir: 'dist',             // 输出目录
+                  dir: 'build',             // 输出目录
                   format: 'iife',          // 仅适用于 JS 文件
                   entryFileNames: 'jsq.js'
                 }
