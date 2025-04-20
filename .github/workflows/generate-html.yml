@@ -22,7 +22,8 @@ jobs:
       - name: Initialize Vite project
         run: |
           # 强制非交互模式初始化项目
-          npm create vite@latest . -- --template vanilla
+          npm create vite@latest vite-app -- --template vanilla
+          cp vite-app/package.json .
           npm install vite --save-dev
           # 验证项目结构
           ls -la
