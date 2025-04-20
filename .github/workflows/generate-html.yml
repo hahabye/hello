@@ -89,6 +89,34 @@ jobs:
           cat static/js/config.js dist/jsq.js > dist/all.js
           ls -al
           cat dist/all.js
+      
+      # --------------------- HTML 注入 ---------------------
+      - name: Generate final HTML
+        run: |
+          # 读取资源内容
+          CSS_CONTENT=$(cat dist/main.css)
+          JS_CONTENT=$(cat dist/all.js)
+
+          # 生成新 HTML（带智能转义）
+          awk -v css="$CSS_CONTENT" -v js="$JS_CONTENT" '
+            BEGIN {
+              gsub(/\//, "\\/", css)  # 转义斜杠
+              gsub(/\//, "\\/", js)
+            }
+            # 删除旧标签
+            !/rel="stylesheet"/ && !/config\.js/ && !/jsq\.js/ {
+              # 插入新标签
+              if (/<\/head>/) print "<style>" css "</style>"
+              if (/<\/body>/) print "<script>" js "</script>"
+              print
+            }
+          ' index.html > dist/index.html
+
+      # --------------------- 最终打包 ---------------------
+      - name: Create release package
+        run: |
+          tar -czvf htm.tar.gz -C dist index.html
+          ls -lh htm.tar.gz
 
 
 
