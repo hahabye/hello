@@ -166,6 +166,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: vps_jsq.tar.gz
+          name: "Latest Build"
+          tag_name: "latest"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
