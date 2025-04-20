@@ -8,6 +8,11 @@ jobs:
     permissions:
       contents: write
     steps:
+    
+      # --------------------- 代码检出 ---------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       # --------------------- 环境准备 ---------------------
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -27,10 +32,6 @@ jobs:
         run: |
           npm install
           ls -la
-
-      # --------------------- 代码检出 ---------------------
-      - name: Checkout code
-        uses: actions/checkout@v4
         
       - name: Create Vite CSS config
         run: |
