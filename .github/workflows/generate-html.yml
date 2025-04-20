@@ -1,4 +1,4 @@
-name: Generate Html And Build Release
+name: Generate Html And Release
 on:
   workflow_dispatch:
 
