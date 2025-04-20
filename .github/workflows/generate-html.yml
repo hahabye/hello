@@ -111,7 +111,8 @@ jobs:
               print
             }
           ' index.html > dist/index.html
-
+          cat dist/index.html
+          
       # --------------------- 最终打包 ---------------------
       - name: Create release package
         run: |
